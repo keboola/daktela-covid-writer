@@ -40,7 +40,7 @@ class Component extends BaseComponent
                 'queue' => (int) $row[1],
                 'number' => $row[0],
                 'customFields' => [
-                    'clevermaps_url' => [$row[1]],
+                    'clevermaps_url' => [$row[2]],
                 ],
             ]);
             $csvWriter->writeRow([$row[0], $recordId]);
