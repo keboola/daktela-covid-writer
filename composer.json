@@ -1,9 +1,11 @@
 {
-    "name": "keboola/my-component",
-    "description": "MyComponent description",
+    "name": "keboola/wr-daktela-covid",
+    "description": "One time writer used for uploading data to Daktela about Covid patients",
     "license": "MIT",
     "require": {
         "php": "^7.4",
+        "guzzlehttp/guzzle": "^6.5",
+        "keboola/csv": "^2.1",
         "keboola/php-component": "^8.1"
     },
     "require-dev": {
@@ -17,24 +19,22 @@
     },
     "autoload": {
         "psr-4": {
-            "MyComponent\\": "src/"
+            "Keboola\\DaktelaCovid\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MyComponent\\Tests\\": "tests/phpunit/",
-            "MyComponent\\FunctionalTests\\": "tests/functional/"
+            "Keboola\\DaktelaCovid\\Tests\\": "tests/phpunit/",
+            "Keboola\\DaktelaCovid\\FunctionalTests\\": "tests/functional/"
         }
     },
     "scripts": {
         "tests-phpunit": "phpunit",
-        "tests-datadir": "phpunit tests/functional",
         "tests": [
-            "@tests-phpunit",
-            "@tests-datadir"
+            "@tests-phpunit"
         ],
 
-        "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
+        "phpstan": "phpstan analyse ./src ./tests --level=2 --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
