@@ -36,12 +36,18 @@ class Component extends BaseComponent
                     substr($row[0], -3, 3)
                 )
             );
+            $extendData = $this->getDataFromExtendInfoTable($row[0]);
             $recordId = $this->sendNumberToCampaign([
                 'queue' => (int) $row[1],
                 'number' => $row[0],
                 'customFields' => [
                     'clevermaps_url' => [$row[2]],
+                    'last_name' => [$extendData['last_name']],
+                    'first_name' => [$extendData['first_name']],
+                    'address' => [$extendData['address']],
+                    'note' => [$extendData['note']],
                 ],
+                'user' => $extendData['user'],
             ]);
             $csvWriter->writeRow([$row[0], $recordId]);
         }
@@ -63,6 +69,24 @@ class Component extends BaseComponent
         return $notSentAlready;
     }
 
+    private function getDataFromExtendInfoTable(string $phoneNumber): array
+    {
+        $extendRows = $this->getRealConfig()->getExtendInfoTable();
+        $map = [];
+        foreach ($extendRows as $row) {
+            $map[$row[4]] = $row;
+        }
+        $person = $map[$phoneNumber];
+        $data = [
+            'first_name' => (!empty($person[7]))? json_decode($person[7], true)[0]:'',
+            'last_name'=> (!empty($person[8]))? json_decode($person[8], true)[0]:'',
+            'address'=> (!empty($person[6]))? json_decode($person[6], true)[0]:'',
+            'note'=> (!empty($person[9]))? json_decode($person[9], true)[0]:'',
+            'user' => $person[10],
+        ];
+        return $data;
+    }
+
     private function sendNumberToCampaign(array $data): string
     {
         $req = (new Client())->request('POST', $this->getRealConfig()->getPostUrl(), [
@@ -75,12 +99,10 @@ class Component extends BaseComponent
         return $recordId;
     }
 
-
     protected function getConfigClass(): string
     {
         return Config::class;
     }
-
 
     private function getRealConfig(): Config
     {

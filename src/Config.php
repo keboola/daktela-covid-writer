@@ -39,6 +39,18 @@ class Config extends BaseConfig
         );
     }
 
+    public function getExtendInfoTable(): CsvReader
+    {
+        $tablePath = self::IN_DIR . $this->getValue(['parameters', 'extend_info_table']) . '.csv';
+        return new CsvReader(
+            $tablePath,
+            CsvOptions::DEFAULT_DELIMITER,
+            CsvOptions::DEFAULT_ENCLOSURE,
+            CsvOptions::DEFAULT_ESCAPED_BY,
+            1
+        );
+    }
+
     public function getOutputSentTablePath(): string
     {
         return self::OUT_DIR . '/output_sent.csv';
