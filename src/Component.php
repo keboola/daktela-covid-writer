@@ -44,7 +44,7 @@ class Component extends BaseComponent
                     'clevermaps_url' => [$row[2]],
                     'last_name' => [$extendData['last_name']],
                     'first_name' => [$extendData['first_name']],
-                    'address' => [$extendData['address']],
+                    //'address' => [$extendData['address']],
                     'note' => [$extendData['note']],
                 ],
                 'user' => $extendData['user'],
@@ -80,7 +80,7 @@ class Component extends BaseComponent
         $data = [
             'first_name' => (!empty($person[7]))? json_decode($person[7], true)[0]:'',
             'last_name'=> (!empty($person[8]))? json_decode($person[8], true)[0]:'',
-            'address'=> (!empty($person[6]))? json_decode($person[6], true)[0]:'',
+            //'address'=> (!empty($person[6]))? json_decode($person[6], true)[0]:'',
             'note'=> (!empty($person[9]))? json_decode($person[9], true)[0]:'',
             'user' => $person[10],
         ];
