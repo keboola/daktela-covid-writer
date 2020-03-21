@@ -27,27 +27,19 @@ class Component extends BaseComponent
         );
 
         $this->getLogger()->info(sprintf('This job will send %s number(s)', count($numbersToSend)));
-
         foreach ($numbersToSend as $row) {
             $this->getLogger()->info(
                 sprintf(
-                    'Sending %s *** %s to daktela',
-                    substr($row[0], 0, 5),
-                    substr($row[0], -3, 3)
+                    'Sending %s to daktela',
+                    $this->hideNumber($row[0])
                 )
             );
             $extendData = $this->getDataFromExtendInfoTable($row[0]);
             $recordId = $this->sendNumberToCampaign([
                 'queue' => (int) $row[1],
                 'number' => $row[0],
-                'customFields' => [
-                    'clevermaps_url' => [$row[2]],
-                    'last_name' => [$extendData['last_name']],
-                    'first_name' => [$extendData['first_name']],
-                    //'address' => [$extendData['address']],
-                    'note' => [$extendData['note']],
-                ],
-                'user' => $extendData['user'],
+                'customFields' => (isset($extendData[6]))? $extendData[6]: [],
+                'user' => (isset($extendData[5]))?$extendData[5]: '',
             ]);
             $csvWriter->writeRow([$row[0], $recordId]);
         }
@@ -76,15 +68,17 @@ class Component extends BaseComponent
         foreach ($extendRows as $row) {
             $map[$row[4]] = $row;
         }
-        $person = $map[$phoneNumber];
-        $data = [
-            'first_name' => (!empty($person[7]))? json_decode($person[7], true)[0]:'',
-            'last_name'=> (!empty($person[8]))? json_decode($person[8], true)[0]:'',
-            //'address'=> (!empty($person[6]))? json_decode($person[6], true)[0]:'',
-            'note'=> (!empty($person[9]))? json_decode($person[9], true)[0]:'',
-            'user' => $person[10],
-        ];
-        return $data;
+        if (isset($map[$phoneNumber])) {
+            return $map[$phoneNumber];
+        }
+
+        $this->getLogger()->warning(
+            sprintf(
+                'Extended data haven\'t been found for number %s',
+                $this->hideNumber($phoneNumber)
+            )
+        );
+        return [];
     }
 
     private function sendNumberToCampaign(array $data): string
@@ -97,6 +91,13 @@ class Component extends BaseComponent
         $recordId = $body['result']['name'];
         $this->getLogger()->info('Record in Daktela created: ' . $recordId);
         return $recordId;
+    }
+
+    private function hideNumber(string $number): string
+    {
+        return sprintf('%s *** %s',
+            substr($number, 0, 5),
+            substr($number, -3, 3));
     }
 
     protected function getConfigClass(): string
