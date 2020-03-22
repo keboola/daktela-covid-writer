@@ -35,10 +35,12 @@ class Component extends BaseComponent
                 )
             );
             $extendData = $this->getDataFromExtendInfoTable($row[0]);
+            $customFields = (isset($extendData[6])) ? \GuzzleHttp\json_decode($extendData[6], true) : [];
+            $customFields['clevermaps_url'] = [$row[2]];
             $recordId = $this->sendNumberToCampaign([
                 'queue' => (int) $row[1],
                 'number' => $row[0],
-                'customFields' => (isset($extendData[6])) ? $extendData[6] : [],
+                'customFields' => $customFields,
                 'user' => (isset($extendData[5])) ? $extendData[5] : '',
             ]);
             $csvWriter->writeRow([$row[0], $recordId]);
