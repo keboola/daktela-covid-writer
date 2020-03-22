@@ -38,8 +38,8 @@ class Component extends BaseComponent
             $recordId = $this->sendNumberToCampaign([
                 'queue' => (int) $row[1],
                 'number' => $row[0],
-                'customFields' => (isset($extendData[6]))? $extendData[6]: [],
-                'user' => (isset($extendData[5]))?$extendData[5]: '',
+                'customFields' => (isset($extendData[6])) ? $extendData[6] : [],
+                'user' => (isset($extendData[5])) ? $extendData[5] : '',
             ]);
             $csvWriter->writeRow([$row[0], $recordId]);
         }
@@ -95,9 +95,11 @@ class Component extends BaseComponent
 
     private function hideNumber(string $number): string
     {
-        return sprintf('%s *** %s',
+        return sprintf(
+            '%s *** %s',
             substr($number, 0, 5),
-            substr($number, -3, 3));
+            substr($number, -3, 3)
+        );
     }
 
     protected function getConfigClass(): string
