@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DaktelaCovid;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ClientException;
 use Keboola\Component\BaseComponent;
 use Keboola\Csv\CsvReader;
 use Keboola\Csv\CsvWriter;
@@ -87,12 +87,14 @@ class Component extends BaseComponent
 
     private function sendNumberToCampaign(array $data): string
     {
-        try{
+        try {
             $req = (new Client())->request('POST', $this->getRealConfig()->getPostUrl(), [
                 'json' => $data,
             ]);
-        } catch (GuzzleException $e) {
-            $this->getLogger()->error(\GuzzleHttp\json_encode(\GuzzleHttp\json_decode($e->getResponse()->getBody(), true)['error']));
+        } catch (ClientException $e) {
+            $this->getLogger()->error(
+                \GuzzleHttp\json_encode(\GuzzleHttp\json_decode($e->getResponse()->getBody(), true)['error'])
+            );
             return '0';
         }
 
