@@ -6,6 +6,7 @@ namespace Keboola\DaktelaCovid;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\InvalidArgumentException;
 use Keboola\Component\BaseComponent;
 use Keboola\Csv\CsvReader;
 use Keboola\Csv\CsvWriter;
@@ -37,7 +38,16 @@ class Component extends BaseComponent
                 )
             );
             $extendData = $this->getDataFromExtendInfoTable($row[0]);
-            $customFields = (isset($extendData[6])) ? \GuzzleHttp\json_decode($extendData[6], true) : [];
+            if (isset($extendData[6])) {
+                try {
+                    $customFields = \GuzzleHttp\json_decode($extendData[6], true);
+                } catch (\Throwable $exception) {
+                    $this->getLogger()->warning('Custom fields parse error on number ' . $this->hideNumber($row[0]));
+                    $customFields = [];
+                }
+            } else {
+                $customFields = [];
+            }
             $customFields['clevermaps_url'] = [$row[2]];
             $recordId = $this->sendNumberToCampaign([
                 'queue' => (int) $row[1],
