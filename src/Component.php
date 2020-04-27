@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DaktelaCovid;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Keboola\Component\BaseComponent;
 use Keboola\Csv\CsvReader;
 use Keboola\Csv\CsvWriter;
@@ -30,8 +31,9 @@ class Component extends BaseComponent
         foreach ($numbersToSend as $row) {
             $this->getLogger()->info(
                 sprintf(
-                    'Sending %s to daktela',
-                    $this->hideNumber($row[0])
+                    'Sending %s to Daktela\'s queue %s',
+                    $this->hideNumber($row[0]),
+                    $row[1]
                 )
             );
             $extendData = $this->getDataFromExtendInfoTable($row[0]);
@@ -85,9 +87,14 @@ class Component extends BaseComponent
 
     private function sendNumberToCampaign(array $data): string
     {
-        $req = (new Client())->request('POST', $this->getRealConfig()->getPostUrl(), [
-            'json' => $data,
-        ]);
+        try{
+            $req = (new Client())->request('POST', $this->getRealConfig()->getPostUrl(), [
+                'json' => $data,
+            ]);
+        } catch (GuzzleException $e) {
+            $this->getLogger()->error(\GuzzleHttp\json_encode(\GuzzleHttp\json_decode($e->getResponse()->getBody(), true)['error']));
+            return '0';
+        }
 
         $body = \GuzzleHttp\json_decode($req->getBody(), true);
         $recordId = $body['result']['name'];
